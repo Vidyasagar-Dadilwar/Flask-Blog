@@ -46,8 +46,9 @@ Deployment Instructions:
 2. Connect your GitHub repository
 3. Use the following settings:
    - Environment: Python
+
    - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn --worker-class gevent main:app`
+   - Start Command: `gunicorn main:app`
 4. Add environment variables:
    - `SECRET_KEY`: Generate a secure random key
    - `DATABASE_URL`: Your database connection string
