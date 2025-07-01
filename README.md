@@ -47,7 +47,7 @@ Deployment Instructions:
 3. Use the following settings:
    - Environment: Python
    - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn -k eventlet main:app`
+   - Start Command: `gunicorn --worker-class gevent main:app`
 4. Add environment variables:
    - `SECRET_KEY`: Generate a secure random key
    - `DATABASE_URL`: Your database connection string
