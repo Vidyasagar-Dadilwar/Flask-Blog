@@ -17,7 +17,13 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
+
+# Ensure upload directory exists
+upload_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+if not os.path.exists(upload_dir):
+    os.makedirs(upload_dir)
+
+app.config['UPLOAD_FOLDER'] = upload_dir
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB
 
 db.init_app(app)
