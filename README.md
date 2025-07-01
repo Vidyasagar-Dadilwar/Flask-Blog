@@ -48,7 +48,7 @@ Deployment Instructions:
    - Environment: Python
 
    - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn main:app`
+   - Start Command: `python main.py`
 4. Add environment variables:
    - `SECRET_KEY`: Generate a secure random key
    - `DATABASE_URL`: Your database connection string
