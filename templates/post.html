@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if post and request.endpoint == 'view_post' %} {# Viewing an existing post #}
+<article class="post-full">
+  {% if post.image_filename %}
+  <div class="blog-card-img" style="margin-bottom:18px;">
+    <img src="{{ url_for('static', filename='uploads/' ~ post.image_filename) }}" alt="Blog image" />
+  </div>
+  {% endif %}
+  <h2 style="margin-bottom: 8px;">{{ post.title }}</h2>
+  <p class="post-meta">
+    Posted by <strong>{{ post.author.username }}</strong>
+    on {{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}
+    {% if current_user.is_authenticated and current_user.id == post.author_id %}
+    <span>
+      <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn"
+        style="background:var(--accent);color:var(--primary-dark);">Edit</a>
+    </span>
+    <span style="margin: 0 8px; color: #bbb;">|</span>
+    <span>
+      <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" style="display:inline;">
+        {{ form.hidden_tag() }}
+        <button type="submit" class="btn" style="background:var(--danger);color:#fff;">Delete</button>
+      </form>
+    </span>
+    {% endif %}
+  </p>
+  <div class="post-content">
+    {{ post.content }}
+  </div>
+</article>
+<hr>
+
+<section class="comments">
+  <h3 style="margin-bottom: 18px;">💬 Comments ({{ comments|length }})</h3>
+  {% if current_user.is_authenticated %}
+  {# Display comment form only if logged in #}
+  <form method="POST" action="{{ url_for('view_post', post_id=post.id) }}">
+    {{ form.hidden_tag() }}
+    <div>
+      {{ form.content.label }}<br>
+      {{ form.content(cols=60, rows=4) }}<br>
+      {% for error in form.content.errors %}
+      <span style="color: var(--danger); font-size:0.95em;">[{{ error }}]</span>
+      {% endfor %}
+    </div>
+    <div>
+      {{ form.submit(class_='btn') }}
+    </div>
+  </form>
+  <hr>
+  {% else %}
+  <p><a class="btn" href="{{ url_for('login', next=request.url) }}">Login</a> to add a comment.</p>
+  <hr>
+  {% endif %}
+
+  {# Display existing comments #}
+  {% if comments %}
+  {% for comment in comments %}
+  <article class="comment"> {# Use the structure from _comment.html #}
+    <p>
+      <strong>{{ comment.user.username }}</strong>
+      <small>on {{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+      {% if current_user.is_authenticated and current_user.id == comment.user_id %}
+      | <a href="#" class="btn" style="background:var(--danger);color:#fff;">Delete</a>
+      {% endif %}
+    </p>
+    <div>{{ comment.content }}</div>
+  </article>
+  {% endfor %}
+  {% else %}
+  <p>No comments yet. Be the first!</p>
+  {% endif %}
+</section>
+
+{% elif post and request.endpoint == 'edit_post' %} {# Editing a post #}
+<h2 style="margin-bottom: 18px;">Edit Post</h2>
+<form method="POST" enctype="multipart/form-data">
+   {{ form.hidden_tag() }}
+   <div>
+     {{ form.title.label }}<br>
+     {{ form.title(size=40) }}<br>
+     {% for error in form.title.errors %}
+     <span style="color: var(--danger); font-size:0.95em;">[{{ error }}]</span>
+     {% endfor %}
+   </div>
+   <div>
+     {{ form.content.label }}<br>
+     {{ form.content(cols=60, rows=10) }}<br>
+     {% for error in form.content.errors %}
+     <span style="color: var(--danger); font-size:0.95em;">[{{ error }}]</span>
+     {% endfor %}
+   </div>
+   <div>
+     {{ form.image.label }}<br>
+     {{ form.image() }}<br>
+     {% if post.image_filename %}
+     <p>Current image: {{ post.image_filename }}</p>
+     <img src="{{ url_for('static', filename='uploads/' ~ post.image_filename) }}" alt="Current image" style="max-width: 200px; margin: 10px 0;">
+     {% endif %}
+     {% for error in form.image.errors %}
+     <span style="color: var(--danger); font-size:0.95em;">[{{ error }}]</span>
+     {% endfor %}
+   </div>
+   <div>
+     {{ form.submit(class_='btn') }}
+   </div>
+{% else %} {# Creating a new post #}
+<h2 style="margin-bottom: 18px;">New Post</h2>
+<form method="POST" action="{{ url_for('create_post') }}" enctype="multipart/form-data">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.title.label }}<br>
+    {{ form.title(size=40) }}<br>
+    {% for error in form.title.errors %}
+    <span style="color: var(--danger); font-size:0.95em;">[{{ error }}]</span>
+    {% endfor %}
+  </div>
+  <div>
+    {{ form.content.label }}<br>
+    {{ form.content(cols=60, rows=10) }}<br>
+    {% for error in form.content.errors %}
+    <span style="color: var(--danger); font-size:0.95em;">[{{ error }}]</span>
+    {% endfor %}
+  </div>
+  <div>
+    {{ form.image.label }}<br>
+    {{ form.image() }}<br>
+    {% for error in form.image.errors %}
+    <span style="color: var(--danger); font-size:0.95em;">[{{ error }}]</span>
+    {% endfor %}
+  </div>
+  <div>
+    {{ form.submit(class_='btn') }}
+  </div>
+</form>
+{% endif %}
+{% endblock %}

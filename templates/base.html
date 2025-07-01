@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <title>{% block title %}Flask Blog{% endblock %}</title>
+</head>
+
+<body>
+  <header>
+    <nav class="container">
+      <h1><a href="{{ url_for('index') }}">Flask Blog</a></h1>
+      <ul>
+        {% if current_user.is_authenticated %}
+        <li>Welcome, <strong>{{ current_user.username }}</strong></li>
+        <li><a href="{{ url_for('create_post') }}">New Post</a></li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <hr>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container">
+    <hr>
+    <p>© 2025 Flask Blog Example</p>
+  </footer>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    if (window.location.pathname === '/' || window.location.pathname === '/index') {
+      var socket = io();
+      socket.on('post_update', function (data) {
+        // Home page pe koi bhi post create/update/delete ho toh reload
+        window.location.reload();
+      });
+    }
+  </script>
+</body>
+
+</html>

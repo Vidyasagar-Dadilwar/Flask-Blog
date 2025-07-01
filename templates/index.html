@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 style="margin-bottom: 24px;">📝 Latest Blog Posts</h1>
+{% if posts %}
+<div class="blog-grid">
+    {% for post in posts %}
+    <article class="blog-card">
+        <div class="blog-card-img">
+            {% if post.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/' ~ post.image_filename) }}" alt="Blog image" />
+            {% else %}
+            <img src="https://source.unsplash.com/400x200/?blog,writing,technology&sig={{ post.id }}"
+                alt="Blog image" />
+            {% endif %}
+        </div>
+        <div class="blog-card-body">
+            <h2 class="blog-card-title"><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a></h2>
+            <p class="post-meta">by <strong>{{ post.author.username }}</strong> on {{
+                post.date_posted.strftime('%Y-%m-%d %H:%M') }}</p>
+            <p class="blog-card-summary">{{ post.content[:120] }}{% if post.content|length > 120 %}...{% endif %}</p>
+            <a class="btn" href="{{ url_for('view_post', post_id=post.id) }}">Read more</a>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="post-summary" style="text-align:center;">
+    <p>No posts yet. Be the first to create one!</p>
+    {% if current_user.is_authenticated %}
+    <a class="btn" href="{{ url_for('create_post') }}">Create New Post</a>
+    {% else %}
+    <a class="btn" href="{{ url_for('login') }}">Login</a> or <a class="btn"
+        href="{{ url_for('register') }}">Register</a> to post.
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
